@@ -1,0 +1,77 @@
+<T3DataStructure>
+	<sheets>
+		<sDEF>
+			<ROOT>
+				<TCEforms>
+					<sheetTitle>LLL:EXT:weather2/Resources/Private/Language/locallang_flexform_weather.xlf:tx_weather2_flex_weather.title</sheetTitle>
+				</TCEforms>
+				<type>array</type>
+				<el>
+					<settings.measureUnits>
+						<TCEforms>
+							<label>LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.measureUnits.label</label>
+							<config>
+								<type>select</type>
+								<renderType>selectSingle</renderType>
+								<eval>required</eval>
+								<items type="array">
+									<numIndex index="0" type="array">
+										<numIndex index="0">LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.measureUnits.metric</numIndex>
+										<numIndex index="1">Metric</numIndex>
+									</numIndex>
+									<numIndex index="1" type="array">
+										<numIndex index="0">LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.measureUnits.imperial</numIndex>
+										<numIndex index="1">Imperial</numIndex>
+									</numIndex>
+									<numIndex index="2" type="array">
+										<numIndex index="0">LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.measureUnits.isou</numIndex>
+										<numIndex index="1">Isou</numIndex>
+									</numIndex>
+								</items>
+							</config>
+						</TCEforms>
+					</settings.measureUnits>
+					<settings.day>
+						<TCEforms>
+							<label>LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.day.label</label>
+							<config>
+								<type>select</type>
+								<renderType>selectSingle</renderType>
+								<eval>required</eval>
+								<items type="array">
+									<numIndex index="0" type="array">
+										<numIndex index="0">LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.day.today</numIndex>
+										<numIndex index="1">0</numIndex>
+									</numIndex>
+									<numIndex index="1" type="array">
+										<numIndex index="0">LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.day.plusOne</numIndex>
+										<numIndex index="1">1</numIndex>
+									</numIndex>
+									<numIndex index="2" type="array">
+										<numIndex index="0">LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.day.plusTwo</numIndex>
+										<numIndex index="1">2</numIndex>
+									</numIndex>
+									<numIndex index="3" type="array">
+										<numIndex index="0">LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.day.plusThree</numIndex>
+										<numIndex index="1">3</numIndex>
+									</numIndex>
+								</items>
+							</config>
+						</TCEforms>
+					</settings.day>
+					<settings.selection>
+						<TCEforms>
+							<label>LLL:EXT:weather2/Resources/Private/Language/locallang_general.xlf:tx_weather2.name</label>
+							<config>
+								<type>select</type>
+								<renderType>selectSingle</renderType>
+								<eval>required</eval>
+								<itemsProcFunc>JWeiland\Weather2\UserFunc\FlexFormUserFunc->getSelection</itemsProcFunc>
+							</config>
+						</TCEforms>
+					</settings.selection>
+				</el>
+			</ROOT>
+		</sDEF>
+	</sheets>
+</T3DataStructure>

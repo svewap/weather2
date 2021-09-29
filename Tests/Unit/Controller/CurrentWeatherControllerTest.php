@@ -9,28 +9,28 @@
 
 namespace JWeiland\Weather2\Tests\Unit\Controller;
 
-use JWeiland\Weather2\Controller\CurrentWeatherController;
-use JWeiland\Weather2\Domain\Repository\CurrentWeatherRepository;
+use JWeiland\Weather2\Controller\WeatherController;
+use JWeiland\Weather2\Domain\Repository\WeatherRepository;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3Fluid\Fluid\View\TemplateView;
 
 /**
- * Test case for class JWeiland\Weather2\Controller\CurrentWeatherController.
+ * Test case for class JWeiland\Weather2\Controller\WeatherController.
  *
  * @author Markus Kugler <projects@jweiland.net>
  * @author Pascal Rinker <projects@jweiland.net>
  */
-class CurrentWeatherControllerTest extends UnitTestCase
+class WeatherControllerTest extends UnitTestCase
 {
     /**
-     * @var \JWeiland\Weather2\Controller\CurrentWeatherController
+     * @var \JWeiland\Weather2\Controller\WeatherController
      */
     protected $subject;
 
     public function setUp(): void
     {
         $this->subject = $this->getAccessibleMock(
-            CurrentWeatherController::class,
+            WeatherController::class,
             ['redirect', 'forward', 'addFlashMessage'],
             [],
             '',
@@ -48,16 +48,16 @@ class CurrentWeatherControllerTest extends UnitTestCase
      */
     public function showActionCallsRepositoryFindBySelectionWithSettingAsArgument()
     {
-        $currentWeather = new \JWeiland\Weather2\Domain\Model\CurrentWeather();
+        $weather = new \JWeiland\Weather2\Domain\Model\Weather();
 
-        $currentWeatherRepository = $this->getAccessibleMock(
-            CurrentWeatherRepository::class,
+        $weatherRepository = $this->getAccessibleMock(
+            WeatherRepository::class,
             ['findBySelection'],
             [],
             '',
             false
         );
-        $this->inject($this->subject, 'currentWeatherRepository', $currentWeatherRepository);
+        $this->inject($this->subject, 'weatherRepository', $weatherRepository);
 
         $view = $this->getAccessibleMock(
             TemplateView::class,
@@ -69,7 +69,7 @@ class CurrentWeatherControllerTest extends UnitTestCase
         $this->inject($this->subject, 'view', $view);
 
         $this->subject->_set('settings', ['selection' => 'testSelection']);
-        $currentWeatherRepository->expects(self::once())->method('findBySelection')->with('testSelection');
+        $weatherRepository->expects(self::once())->method('findBySelection')->with('testSelection');
         $this->subject->showAction();
     }
 }

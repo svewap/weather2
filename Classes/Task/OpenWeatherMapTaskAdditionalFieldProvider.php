@@ -18,6 +18,7 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -37,10 +38,10 @@ class OpenWeatherMapTaskAdditionalFieldProvider extends AbstractAdditionalFieldP
      * @var array
      */
     protected $requiredFields = [
-        'name',
         'city',
         'country',
-        'apiKey'
+        'apiKey',
+        'dataCollection'
     ];
 
     /**
@@ -49,7 +50,6 @@ class OpenWeatherMapTaskAdditionalFieldProvider extends AbstractAdditionalFieldP
      * @var array
      */
     protected $insertFields = [
-        'name',
         'city',
         'country',
         'apiKey',
@@ -58,7 +58,9 @@ class OpenWeatherMapTaskAdditionalFieldProvider extends AbstractAdditionalFieldP
         'emailSenderName',
         'emailSender',
         'emailReceiver',
-        'recordStoragePage'
+        'recordStoragePage',
+        'lon',
+        'lat'
     ];
 
     /**
@@ -68,13 +70,13 @@ class OpenWeatherMapTaskAdditionalFieldProvider extends AbstractAdditionalFieldP
      * @return array
      */
     public function getAdditionalFields(
-        array &$taskInfo,
-        $task,
+        array                     &$taskInfo,
+                                  $task,
         SchedulerModuleController $schedulerModule
-    ): array {
+    ): array
+    {
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-        $pageRenderer->addJsFile('sysext/backend/Resources/Public/JavaScript/jsfunc.evalfield.js');
         $pageRenderer->loadRequireJsModule('TYPO3/CMS/Weather2/OpenWeatherMapTaskModule');
         $popupSettings = [
             'PopupWindow' => [
@@ -105,16 +107,22 @@ class OpenWeatherMapTaskAdditionalFieldProvider extends AbstractAdditionalFieldP
 
         $additionalFields = [];
 
-        $fieldID = 'name';
-        $fieldCode = '<input type="text" class="form-control" name="tx_scheduler[name]" id="' . $fieldID . '" value="' . $taskInfo['name'] . '" size="30" placeholder="e.g. Berlin"/>';
+        $fieldID = 'city';
+        $fieldCode = '<input type="text" class="form-control" name="tx_scheduler[city]" id="' . $fieldID . '" value="' . $taskInfo['city'] . '" size="30" placeholder="e.g. Berlin"/>';
         $additionalFields[$fieldID] = [
             'code' => $fieldCode,
-            'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:name'
+            'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:city'
+        ];
+
+        $fieldID = 'apiKey';
+        $fieldCode = '<input type="text" class="form-control" name="tx_scheduler[apiKey]" id="' . $fieldID . '" value="' . $taskInfo['apiKey'] . '" size="120" />';
+        $additionalFields[$fieldID] = [
+            'code' => $fieldCode,
+            'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:api_key'
         ];
 
         $fieldID = 'recordStoragePage';
-        $fieldCode = '<div class="input-group"><input type="text" class="form-control" name="tx_scheduler[recordStoragePage]" id="' . $fieldID . '" value="' . $taskInfo['recordStoragePage'] . '"
-size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage_page', 'openweatherapi') . ' --->"/><span class="input-group-btn"><a href="#" class="btn btn-default" onclick="TYPO3.FormEngine.openPopupWindow(\'db\',\'tx_scheduler[recordStoragePage]|||pages|\'); return false;">' .
+        $fieldCode = '<div class="input-group"><input type="text" class="form-control" name="tx_scheduler[recordStoragePage]" id="' . $fieldID . '" value="' . $taskInfo['recordStoragePage'] . '" size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage_page', 'openweatherapi') . ' --->"/><span class="input-group-btn"><a href="#" class="btn btn-default" onclick="TYPO3.FormEngine.openPopupWindow(\'db\',\'tx_scheduler[recordStoragePage]|||pages|\'); return false;">' .
             WeatherUtility::translate('buttons.record_storage_page', 'openweatherapi') . '</a></span></div>';
 
         $additionalFields[$fieldID] = [
@@ -122,12 +130,11 @@ size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage
             'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:record_storage_page'
         ];
 
-        // todo: Add second task to import regions with id from OpenWeatherMap-Servers like DeutschWetterDienstTask
-        $fieldID = 'city';
-        $fieldCode = '<input type="text" class="form-control" name="tx_scheduler[city]" id="' . $fieldID . '" value="' . $taskInfo['city'] . '" size="30" placeholder="e.g. Berlin Mitte"/>';
+        $fieldID = 'query';
+        $fieldCode = '<input type="text" class="form-control ui-autocomplete-input" placeholder="e.g. Aachen" name="tx_scheduler[query]" id="' . $fieldID . '" value="" size="120" />';
         $additionalFields[$fieldID] = [
             'code' => $fieldCode,
-            'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:city'
+            'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:query'
         ];
 
         $fieldID = 'country';
@@ -137,12 +144,21 @@ size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage
             'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:country'
         ];
 
-        $fieldID = 'apiKey';
-        $fieldCode = '<input type="text" class="form-control" name="tx_scheduler[apiKey]" id="' . $fieldID . '" value="' . $taskInfo['apiKey'] . '" size="120" />';
+
+        $fieldID = 'lon';
+        $fieldCode = '<input type="text" class="form-control" name="tx_scheduler[lon]" id="' . $fieldID . '" value="' . $taskInfo['lon'] . '" />';
         $additionalFields[$fieldID] = [
             'code' => $fieldCode,
-            'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:api_key'
+            'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:lon'
         ];
+
+        $fieldID = 'lat';
+        $fieldCode = '<input type="text" class="form-control" name="tx_scheduler[lat]" id="' . $fieldID . '" value="' . $taskInfo['lat'] . '" />';
+        $additionalFields[$fieldID] = [
+            'code' => $fieldCode,
+            'label' => 'LLL:EXT:weather2/Resources/Private/Language/locallang_scheduler_openweatherapi.xlf:lat'
+        ];
+
 
         $fieldID = 'clearCache';
         $fieldCode = '<input type="text" class="form-control" name="tx_scheduler[clearCache]" id="' . $fieldID . '" value="' . $taskInfo['clearCache'] . '" size="120" />';
@@ -195,9 +211,10 @@ size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage
      * @return bool
      */
     public function validateAdditionalFields(
-        array &$submittedData,
+        array                     &$submittedData,
         SchedulerModuleController $schedulerModule
-    ): bool {
+    ): bool
+    {
         $isValid = true;
 
         if ($submittedData['recordStoragePage']) {
@@ -221,12 +238,19 @@ size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage
             }
         }
 
-        $isValidResponseCode = $this->isValidResponseCode(
-            $submittedData['city'],
-            $submittedData['country'],
-            $submittedData['apiKey'],
-            $schedulerModule
-        );
+        $lon = ($submittedData['lon'] === '') ? null : (float)$submittedData['lon'];
+        $lat = ($submittedData['lat'] === '') ? null : (float)$submittedData['lat'];
+
+        if ($lon !== null && $lat !== null) {
+            $isValidResponseCode = $this->isValidResponseCode(
+                $lon,
+                $lat,
+                $submittedData['apiKey'],
+                $schedulerModule,
+                $submittedData
+            );
+
+        }
 
         if (!$isValidResponseCode) {
             return false;
@@ -238,22 +262,26 @@ size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage
     /**
      * Checks the JSON response
      *
-     * @param string $city
-     * @param string $country
+     * @param float $lon
+     * @param float $lat
      * @param string $apiKey
      * @param SchedulerModuleController $schedulerModule
      * @return bool Returns true if given data is valid or false in case of an error
      */
     private function isValidResponseCode(
-        $city,
-        $country,
+        $lon,
+        $lat,
         $apiKey,
-        SchedulerModuleController $schedulerModule
-    ): bool {
+        SchedulerModuleController $schedulerModule,
+        array                     &$submittedData
+    ): bool
+    {
+
         $url = sprintf(
-            'http://api.openweathermap.org/data/2.5/weather?q=%s,%s&units=%s&APPID=%s',
-            urlencode($city),
-            urlencode($country),
+            '%s?lat=%s&lon=%s&units=%s&appid=%s',
+            'https://api.openweathermap.org/data/2.5/onecall',
+            $lat,
+            $lon,
             'metric',
             $apiKey
         );
@@ -273,38 +301,21 @@ size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage
             );
             return false;
         }
-        if ($response->getStatusCode() !== 200) {
-            $this->addMessage(
-                WeatherUtility::translate('message.api_response_null', 'openweatherapi'),
-                FlashMessage::ERROR
-            );
-            return false;
+        if ($response->getStatusCode() === 200) {
+
+            /** @var \stdClass $responseClass */
+            $responseClass = json_decode((string)$response->getBody());
+
+            $this->addMessage(WeatherUtility::translate('message.api_code_200', 'openweatherapi'), FlashMessage::INFO);
+
+            return true;
         }
 
-        /** @var \stdClass $responseClass */
-        $responseClass = json_decode((string)$response->getBody());
-
-        switch ($responseClass->cod) {
-            case '200':
-                $this->addMessage(sprintf(
-                    WeatherUtility::translate('message.api_code_200', 'openweatherapi'),
-                    $responseClass->name,
-                    $responseClass->sys->country
-                ), FlashMessage::INFO);
-                return true;
-            case '404':
-                $this->addMessage(
-                    WeatherUtility::translate('message.api_code_404', 'openweatherapi'),
-                    FlashMessage::ERROR
-                );
-                return false;
-            default:
-                $this->addMessage(sprintf(
-                    WeatherUtility::translate('message.api_code_none', 'openweatherapi'),
-                    json_encode($responseClass)
-                ), FlashMessage::ERROR);
-                return false;
-        }
+        $this->addMessage(
+            WeatherUtility::translate('message.api_response_null', 'openweatherapi'),
+            FlashMessage::ERROR
+        );
+        return false;
     }
 
     /**
@@ -313,9 +324,11 @@ size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage
      */
     public function saveAdditionalFields(array $submittedData, AbstractTask $task): void
     {
+
         /** @var OpenWeatherMapTask $task */
-        $task->name = $submittedData['name'];
         $task->city = $submittedData['city'];
+        $task->lon = $submittedData['lon'];
+        $task->lat = $submittedData['lat'];
         $task->recordStoragePage = $submittedData['recordStoragePage'];
         $task->country = $submittedData['country'];
         $task->apiKey = $submittedData['apiKey'];
@@ -372,4 +385,6 @@ size="30" placeholder="' . WeatherUtility::translate('placeholder.record_storage
 
         return implode('', $options);
     }
+
+
 }

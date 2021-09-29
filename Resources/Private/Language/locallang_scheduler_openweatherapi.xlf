@@ -16,6 +16,12 @@
 			<trans-unit id="api_key">
 				<source>API-Key</source>
 			</trans-unit>
+			<trans-unit id="lon">
+				<source>Longitude</source>
+			</trans-unit>
+			<trans-unit id="lat">
+				<source>Latitude</source>
+			</trans-unit>
 			<trans-unit id="clear_cache">
 				<source>Clear cache for pages (comma separated list with IDs)</source>
 			</trans-unit>
@@ -53,7 +59,7 @@
 				<source>You can change the mail configuration via the TYPO3 Install Tool > All configuration > Mail.</source>
 			</trans-unit>
 			<trans-unit id="message.api_code_200">
-				<source>API request successfully. API will use measure data from %s, %s.</source>
+				<source>API request successfully. API will use measure data.</source>
 			</trans-unit>
 			<trans-unit id="message.api_code_404">
 				<source>API returns code 404, please check the city name!</source>

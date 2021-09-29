@@ -11,12 +11,13 @@ declare(strict_types=1);
 
 namespace JWeiland\Weather2\Task;
 
-use JWeiland\Weather2\Domain\Model\CurrentWeather;
+use JWeiland\Weather2\Domain\Model\Weather;
 use JWeiland\Weather2\Utility\WeatherUtility;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Mail\MailMessage;
+use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MailUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -29,19 +30,14 @@ use TYPO3\CMS\Scheduler\Task\AbstractTask;
  */
 class OpenWeatherMapTask extends AbstractTask
 {
-    /**
-     * Api request url
-     *
-     * @var string
-     */
-    protected $url = '';
+
 
     /**
      * Table name
      *
      * @var string
      */
-    protected $dbExtTable = 'tx_weather2_domain_model_currentweather';
+    protected $dbExtTable = 'tx_weather2_domain_model_weather';
 
     /**
      * JSON response of openweathermap api
@@ -50,12 +46,27 @@ class OpenWeatherMapTask extends AbstractTask
      */
     protected $responseClass;
 
+
+    public static $API_VERSION = 2.5;
+
     /**
      * City
      *
      * @var string $city
      */
     public $city = '';
+
+
+    /**
+     * @var float $lat
+     */
+    public $lat = 0.0;
+
+    /**
+     * @var float $lon
+     */
+    public $lon = 0.0;
+
 
     /**
      * Api key
@@ -78,6 +89,7 @@ class OpenWeatherMapTask extends AbstractTask
      */
     public $country = '';
 
+
     /**
      * Record storage page
      *
@@ -86,7 +98,7 @@ class OpenWeatherMapTask extends AbstractTask
     public $recordStoragePage = 0;
 
     /**
-     * Name of current record
+     * Name of current task record
      *
      * @var string $name
      */
@@ -120,6 +132,8 @@ class OpenWeatherMapTask extends AbstractTask
      */
     public $emailReceiver = '';
 
+
+
     /**
      * This method is the heart of the scheduler task. It will be fired if the scheduler
      * gets executed
@@ -141,10 +155,15 @@ class OpenWeatherMapTask extends AbstractTask
 
         $this->removeOldRecordsFromDb();
 
+
+        $localNames = $this->fetchLocalNames($this->city,$this->apiKey);
+
+
         $this->url = sprintf(
-            'http://api.openweathermap.org/data/2.5/weather?q=%s,%s&units=%s&APPID=%s',
-            urlencode($this->city),
-            urlencode($this->country),
+            '%s?lat=%s&lon=%s&units=%s&exclude=minutely&appid=%s',
+            'https://api.openweathermap.org/data/2.5/onecall',
+            $this->lat,
+            $this->lon,
             'metric',
             $this->apiKey
         );
@@ -163,11 +182,11 @@ class OpenWeatherMapTask extends AbstractTask
             return false;
         }
         $this->responseClass = json_decode((string)$response->getBody());
-        $this->logger->info(sprintf('Response class: %s', json_encode($this->responseClass)));
+        $this->logger->debug(sprintf('Response class: %s', json_encode($this->responseClass)));
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $persistenceManager = $objectManager->get(PersistenceManager::class);
 
-        $persistenceManager->add($this->getCurrentWeatherInstanceForResponseClass($this->responseClass));
+        $persistenceManager->add($this->getWeatherInstanceForResponseClass($this->responseClass));
         $persistenceManager->persistAll();
 
         if (!empty($this->clearCache)) {
@@ -203,92 +222,30 @@ class OpenWeatherMapTask extends AbstractTask
             return false;
         }
 
-        /** @var \stdClass $responseClass */
-        $responseClass = json_decode((string)$response->getBody());
-
-        switch ($responseClass->cod) {
-            case '200':
-                return true;
-            case '404':
-                $this->logger->error(WeatherUtility::translate('messages.api_code_404', 'openweatherapi'));
-                $this->sendMail(
-                    'Error while requesting weather data',
-                    WeatherUtility::translate('messages.api_code_404', 'openweatherapi')
-                );
-                return false;
-            default:
-                $this->logger->error(
-                    sprintf(
-                        WeatherUtility::translate('messages.api_code_none', 'openweatherapi'),
-                        (string)$response->getBody()
-                    )
-                );
-                $this->sendMail(
-                    'Error while requesting weather data',
-                    sprintf(WeatherUtility::translate('messages.api_code_none', 'openweatherapi'), (string)$response->getBody())
-                );
-                return false;
-        }
+        return true;
     }
 
     /**
-     * Returns filled CurrentWeather instance
+     * Returns filled Weather instance
      *
      * @param \stdClass $responseClass
-     * @return CurrentWeather
+     * @return Weather
      */
-    private function getCurrentWeatherInstanceForResponseClass($responseClass): CurrentWeather
+    private function getWeatherInstanceForResponseClass($responseClass): Weather
     {
-        $currentWeather = new CurrentWeather();
-        $currentWeather->setPid((int)$this->recordStoragePage);
-        $currentWeather->setName($this->name);
+        $weather = new Weather();
+        $weather->setPid((int)$this->recordStoragePage);
+        $weather->setPlaceName($this->city);
+        $weather->setTaskId($this->getTaskUid());
+        $weather->setDateMin($responseClass->current->dt);
+        $weather->setDateMax($responseClass->daily[count($responseClass->daily)-1]->dt);
 
-        if (isset($responseClass->main->temp)) {
-            $currentWeather->setTemperatureC($responseClass->main->temp);
-        }
-        if (isset($responseClass->main->pressure)) {
-            $currentWeather->setPressureHpa($responseClass->main->pressure);
-        }
-        if (isset($responseClass->main->humidity)) {
-            $currentWeather->setHumidityPercentage($responseClass->main->humidity);
-        }
-        if (isset($responseClass->main->temp_min)) {
-            $currentWeather->setMinTempC($responseClass->main->temp_min);
-        }
-        if (isset($responseClass->main->temp_max)) {
-            $currentWeather->setMaxTempC($responseClass->main->temp_max);
-        }
-        if (isset($responseClass->wind->speed)) {
-            $currentWeather->setWindSpeedMPS($responseClass->wind->speed);
-        }
-        if (isset($responseClass->wind->deg)) {
-            $currentWeather->setWindDirectionDeg($responseClass->wind->deg);
-        }
-        if (isset($responseClass->rain)) {
-            $rain = (array)$responseClass->rain;
-            $currentWeather->setRainVolume((int)$rain[0]);
-        }
-        if (isset($responseClass->snow)) {
-            $snow = (array)$responseClass->snow;
-            $currentWeather->setSnowVolume((int)$snow[0]);
-        }
-        if (isset($responseClass->clouds->all)) {
-            $currentWeather->setCloudsPercentage($responseClass->clouds->all);
-        }
-        if (isset($responseClass->dt)) {
-            $measureTimestamp = new \DateTime();
-            $measureTimestamp->setTimestamp($responseClass->dt);
-            $currentWeather->setMeasureTimestamp($measureTimestamp);
-        }
-        if (isset($responseClass->weather[0]->icon)) {
-            $currentWeather->setIcon($responseClass->weather[0]->icon);
-        }
-        if (isset($responseClass->weather[0]->id)) {
-            $currentWeather->setConditionCode($responseClass->weather[0]->id);
-        }
+        $weather->setSerializedArray(serialize(json_decode(json_encode($responseClass), true)));
 
-        return $currentWeather;
+        return $weather;
     }
+
+
 
     /**
      * Sends a mail with $subject and $body to in task selected mail receiver.
@@ -353,10 +310,54 @@ class OpenWeatherMapTask extends AbstractTask
     protected function removeOldRecordsFromDb(): void
     {
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getConnectionForTable('tx_weather2_domain_model_currentweather');
+            ->getConnectionForTable('tx_weather2_domain_model_weather');
         $connection->delete(
-            'tx_weather2_domain_model_currentweather',
-            ['pid' => $this->recordStoragePage, 'name' => $this->name]
+            'tx_weather2_domain_model_weather',
+            ['pid' => $this->recordStoragePage, 'task_id' => $this->getTaskUid()]
         );
     }
+
+
+    /**
+     * Returns the information shown in the task-list
+     *
+     * @return string Information-text fot the scheduler task-list
+     */
+    public function getAdditionalInformation()
+    {
+        $message = 'Place: '.$this->city;
+
+        return $message;
+    }
+
+
+    private function fetchLocalNames(
+        $query,
+        $apiKey
+    ) {
+
+        $url = sprintf(
+            '%s?q=%s&units=%s&appid=%s',
+            'https://api.openweathermap.org/geo/1.0/direct',
+            $query,
+            'metric',
+            $apiKey
+        );
+        try {
+            $response = GeneralUtility::makeInstance(RequestFactory::class)->request($url);
+        } catch (\Throwable $exception) {
+            $errorMessage = 'Exception while fetching data from API: ' . $exception->getMessage();
+            $this->logger->error($errorMessage);
+            return false;
+        }
+
+        $responseObj = json_decode((string)$response->getBody());
+
+        if ($response->getStatusCode() === 200) {
+            return json_decode(json_encode($responseObj[0]->local_names), true);
+        }
+
+        return [];
+    }
+
 }

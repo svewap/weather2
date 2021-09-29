@@ -31,12 +31,12 @@ Screenshots current weather
 
 Displaying basic information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. figure:: ../Images/CurrentWeather/FrontendView.jpeg
+.. figure:: ../Images/Weather/FrontendView.jpeg
    :alt: Frontend view
 
 Displaying more information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. figure:: ../Images/CurrentWeather/FrontendViewExpanded.jpeg
+.. figure:: ../Images/Weather/FrontendViewExpanded.jpeg
    :alt: Expanded frontend view
 
 Screenshots weather alert

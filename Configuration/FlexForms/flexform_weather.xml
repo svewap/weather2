@@ -3,7 +3,7 @@
 		<sDEF>
 			<ROOT>
 				<TCEforms>
-					<sheetTitle>LLL:EXT:weather2/Resources/Private/Language/locallang_flexform_currentweather.xlf:tx_weather2_flex_currentweather.title</sheetTitle>
+					<sheetTitle>LLL:EXT:weather2/Resources/Private/Language/locallang_flexform_weather.xlf:tx_weather2_flex_weather.title</sheetTitle>
 				</TCEforms>
 				<type>array</type>
 				<el>

@@ -4,7 +4,7 @@
 				product-name="weather2">
 		<header/>
 		<body>
-			<trans-unit id="tx_weather2_flex_currentweather.title">
+			<trans-unit id="tx_weather2_flex_weather.title">
 				<source>Display Conf</source>
 			</trans-unit>
 		</body>

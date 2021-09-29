@@ -70,8 +70,8 @@
 				</target>
 			</trans-unit>
 			<trans-unit id="message.api_code_200">
-				<source>API request successfully. API will use measure data from %s, %s.</source>
-				<target>API-Anfrage erfolgreich. Station %s, %s wird verwendet.</target>
+				<source>API request successfully. API will use measure data.</source>
+				<target>API-Anfrage erfolgreich. Daten werden verwendet.</target>
 			</trans-unit>
 			<trans-unit id="message.api_code_404">
 				<source>API returns code 404, please check the city name!</source>

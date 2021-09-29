@@ -11,7 +11,7 @@ jQuery(document).ready(function () {
     $(this).html($(this).attr('toggle-label'));
     $(this).attr('toggle-label', temp);
     $weather2Item.next('.secondaryProperties').toggleClass('expanded');
-    
+
   });
   jQuery(txWeather2 + ' .showMore').show().addClass('notSelectable cursorPointer');
 });

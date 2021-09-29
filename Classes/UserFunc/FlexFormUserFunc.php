@@ -27,12 +27,12 @@ class FlexFormUserFunc
     public function getSelection(array &$fConfig): void
     {
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable(
-            'tx_weather2_domain_model_currentweather'
+            'tx_weather2_domain_model_weather'
         );
-        $result = $connection->select(['name'], 'tx_weather2_domain_model_currentweather')->fetchAll();
+        $result = $connection->select(['place_name'], 'tx_weather2_domain_model_weather')->fetchAll();
 
         foreach ($result as $data) {
-            array_unshift($fConfig['items'], [$data['name'], $data['name']]);
+            array_unshift($fConfig['items'], [$data['place_name'], $data['place_name']]);
         }
     }
 }

@@ -1,0 +1,13 @@
+<f:layout name="Default"/>
+
+<f:section name="main">
+    <f:if condition="{weather}">
+        <f:then>
+            <f:flashMessages/>
+            <f:render partial="Day/{settings.measureUnits}" arguments="{weather:'{weather.days.{settings.day}}'}"/>
+        </f:then>
+        <f:else>
+            <span><f:translate key="tx_jwopenweather.error.noRecord"/></span>
+        </f:else>
+    </f:if>
+</f:section>

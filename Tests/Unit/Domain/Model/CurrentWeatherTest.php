@@ -22,22 +22,22 @@ namespace JWeiland\Weather2\Tests\Unit\Domain\Model;
  * The TYPO3 project - inspiring people to share!
  */
 
-use JWeiland\Weather2\Domain\Model\CurrentWeather;
+use JWeiland\Weather2\Domain\Model\Weather;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
 /**
- * Test case for JWeiland\Weather2\Domain\Model\CurrentWeatherTest
+ * Test case for JWeiland\Weather2\Domain\Model\WeatherTest
  */
-class CurrentWeatherTest extends UnitTestCase
+class WeatherTest extends UnitTestCase
 {
     /**
-     * @var \JWeiland\Weather2\Domain\Model\CurrentWeather
+     * @var \JWeiland\Weather2\Domain\Model\Weather
      */
     protected $subject;
 
     public function setUp(): void
     {
-        $this->subject = new CurrentWeather();
+        $this->subject = new Weather();
     }
 
     /**

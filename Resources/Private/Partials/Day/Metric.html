@@ -1,0 +1,23 @@
+<div class="weather2-item weather2-report" id="weather2-weather{weather.uid}">
+	<f:variable name="weatherCondition"><f:translate key="LLL:EXT:weather2/Resources/Private/Language/locallang_openweathermap_codes.xlf:{weather.weather.0.id}" /></f:variable>
+	<div class="primary">
+		<div class="weather-icon">
+			<f:image src="{settings.iconsPath}{weather.weather.0.icon}.png" alt="{weatherCondition}" title="{weatherCondition}"/>
+		</div>
+		<div class="weather-data">
+			<h3>{weather.temp.day} °C</h3>
+            <p><f:translate key="tx_weather2_domain_model_weather.min_temp_c" />: {weather.temp.min} °C</p>
+            <p><f:translate key="tx_weather2_domain_model_weather.max_temp_c" />: {weather.temp.max} °C</p>
+			<p><a href="#" class="showMore" toggle-label="{f:translate(key: 'tx_weather2.utility.showLess')}"><f:translate key="tx_weather2.utility.showMore" /></a></p>
+		</div>
+	</div>
+	<ul class="secondaryProperties">
+		<li>{weatherCondition}</li>
+		<li><f:translate key="tx_weather2_domain_model_weather.rain_volume" />: {f:if(condition: weather.rain,then:weather.rain,else:'0')} mm</li>
+		<f:if condition="{weather.snow}"><li><f:translate key="tx_weather2_domain_model_weather.snow_volume" />: {weather.snow} mm</li></f:if>
+		<li><f:translate key="tx_weather2_domain_model_weather.clouds_percentage" />: {weather.clouds} %</li>
+		<li><f:translate key="tx_weather2_domain_model_weather.pressure_hpa" />: {weather.pressure} hPa</li>
+		<li><f:translate key="tx_weather2_domain_model_weather.wind_speed_m_p_s" />: {weather.wind_speed} m/s <f:translate key="from" /> <f:translate key="tx_weather2_domain_model_weather.wind_readable_direction.{weather.wind_deg}" /></li>
+		<li><f:translate key="tx_weather2_domain_model_weather.measure_timestamp" />: {weather.dt -> f:format.date(format: 'd.m.Y - H:i')}</li>
+	</ul>
+</div>

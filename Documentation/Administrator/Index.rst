@@ -53,7 +53,7 @@ How do I get set up?
     #. Add extension template file to your template
     #. Enjoy! ;)
 
-.. figure:: ../Images/CurrentWeather/BackendPluginContentElement.gif
+.. figure:: ../Images/Weather/BackendPluginContentElement.gif
    :alt: Backend plugin content element
 
    This is how the content element plugin looks like

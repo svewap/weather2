@@ -1,10 +1,10 @@
 <f:layout name="Default"/>
 
 <f:section name="main">
-	<f:if condition="{currentWeather}">
+	<f:if condition="{weather}">
 		<f:then>
 			<f:flashMessages />
-			<f:render partial="CurrentWeather/{settings.measureUnits}" arguments="{currentWeather:currentWeather}" />
+			<f:render partial="Weather/{settings.measureUnits}" arguments="{weather:weather.current}" />
 		</f:then>
 		<f:else>
 			<span><f:translate key="tx_jwopenweather.error.noRecord" /></span>

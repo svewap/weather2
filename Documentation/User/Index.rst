@@ -17,7 +17,7 @@ Adding a new plugin to display weather reports
 To add a new plugin just create a new content element, choose insert plugin and select *Current Weather* under plugin.
 Now you can select the desired measure unit and record identifier to display records.
 
-.. figure:: ../Images/CurrentWeather/BackendPluginContentElement.gif
+.. figure:: ../Images/Weather/BackendPluginContentElement.gif
    :width: 725px
    :alt: Backend plugin content element
 
@@ -47,11 +47,11 @@ Add the following TypoScript to your setup:
 .. code-block:: typoscript
 
     # weather reports
-    lib.weather2_currentweather = USER
-    lib.weather2_currentweather {
+    lib.weather2_weather = USER
+    lib.weather2_weather {
       userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
       extensionName = Weather2
-      pluginName = Currentweather
+      pluginName = Weather
       vendorName = JWeiland
 
       settings =< plugin.tx_weather2.settings
@@ -72,7 +72,7 @@ Use the following snippet in your Fluid template:
 
 .. code-block:: html
 
-    <f:cObject typoscriptObjectPath="lib.weather2_currentweather" />
+    <f:cObject typoscriptObjectPath="lib.weather2_weather" />
 
 
 Render weather alerts inside a fluid template

@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace JWeiland\Weather2\ViewHelpers;
 
-use JWeiland\Weather2\Domain\Model\CurrentWeather;
+use JWeiland\Weather2\Domain\Model\Weather;
 use JWeiland\Weather2\Service\WeatherConverterService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
@@ -33,7 +33,7 @@ class ConvertMetricToImperialViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         $this->registerArgument('as', 'string', 'Holds converted Weather data', false, 'convertedData');
-        $this->registerArgument('weatherModel', CurrentWeather::class, 'Current Weather Object', true);
+        $this->registerArgument('weatherModel', Weather::class, 'Current Weather Object', true);
     }
 
     /**
@@ -47,7 +47,7 @@ class ConvertMetricToImperialViewHelper extends AbstractViewHelper
         \Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ): string {
-        /** @var CurrentWeather $currentWeather */
+        /** @var Weather $weather */
         $weatherModel = $arguments['weatherModel'];
         $convertedModel = clone $weatherModel;
         /** @var $converter WeatherConverterService */

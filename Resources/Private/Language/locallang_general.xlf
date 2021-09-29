@@ -7,6 +7,21 @@
 			<trans-unit id="tx_weather2.name">
 				<source>Display record</source>
 			</trans-unit>
+			<trans-unit id="tx_weather2.day.label">
+				<source>Day</source>
+			</trans-unit>
+			<trans-unit id="tx_weather2.day.today">
+				<source>Today</source>
+			</trans-unit>
+			<trans-unit id="tx_weather2.day.plusOne">
+				<source>+1</source>
+			</trans-unit>
+			<trans-unit id="tx_weather2.day.plusTwo">
+				<source>+2</source>
+			</trans-unit>
+			<trans-unit id="tx_weather2.day.plusThree">
+				<source>+3</source>
+			</trans-unit>
 			<trans-unit id="tx_weather2.measureUnits.label">
 				<source>Measure Units</source>
 			</trans-unit>

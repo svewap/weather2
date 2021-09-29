@@ -29,10 +29,25 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update']['weather2Empt
 
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
     'JWeiland.weather2',
-    'Currentweather',
+    'Current',
     [
-        'CurrentWeather' => 'show',
+        'Weather' => 'current',
+    ]
+);
 
+\TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
+    'JWeiland.weather2',
+    'Day',
+    [
+        'Weather' => 'day',
+    ]
+);
+
+\TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
+    'JWeiland.weather2',
+    'Forecast',
+    [
+        'Weather' => 'forecast',
     ]
 );
 

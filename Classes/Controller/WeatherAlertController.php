@@ -33,7 +33,7 @@ class WeatherAlertController extends ActionController
     }
 
     /**
-     * action show displays the newest CurrentWeather model
+     * action show displays the newest Weather model
      */
     public function showAction(): void
     {
